@@ -5,6 +5,7 @@ A Blazor Server application for searching TV series and mini-series from the IMD
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- [PostgreSQL](https://www.postgresql.org/download/) server (local or remote)
 - IMDB dataset files (free, non-commercial use):
   - [title.basics.tsv.gz](https://datasets.imdbws.com/title.basics.tsv.gz)
   - [title.ratings.tsv.gz](https://datasets.imdbws.com/title.ratings.tsv.gz)
@@ -19,7 +20,15 @@ If `dotnet ef` is not installed, install it first:
 dotnet tool install --global dotnet-ef
 ```
 
-Run the database migration to create the local SQLite database:
+Configure the connection string in `appsettings.json` to point at your PostgreSQL server:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Database=imdb;Username=postgres;Password=yourpassword"
+}
+```
+
+Run the database migration:
 
 ```bash
 dotnet ef database update
@@ -46,6 +55,6 @@ Then open the HTTPS URL shown in the terminal output in your browser.
 ## Tech Stack
 
 - [ASP.NET Core](https://dotnet.microsoft.com/apps/aspnet) / [Blazor Server](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
-- [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) with SQLite
+- [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/) with PostgreSQL (Npgsql)
 - [MudBlazor](https://mudblazor.com/) component library
 - [IMDB Non-Commercial Datasets](https://developer.imdb.com/non-commercial-datasets/)
