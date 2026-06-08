@@ -41,6 +41,10 @@ namespace ImdbSearch.Services
                 if (fields[1] != "tvSeries" && fields[1] != "tvMiniSeries")
                     continue;
 
+                // Skip adult titles — they add no value to this app
+                if (fields[4] == "1")
+                    continue;
+
                 Title title = new Title
                 {
                     TConst = fields[0],
