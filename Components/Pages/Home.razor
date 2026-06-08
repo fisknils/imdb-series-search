@@ -158,20 +158,16 @@
     {
         filter.Page = 1;
         isLoading = true;
-        StateHasChanged();
         resultPage = await SearchService.SearchAsync(filter);
         isLoading = false;
-        StateHasChanged();
     }
 
     private async Task GoToPage(int page)
     {
         filter.Page = page;
         isLoading = true;
-        StateHasChanged();
         resultPage = await SearchService.SearchAsync(filter);
         isLoading = false;
-        StateHasChanged();
     }
 
     private async Task<IEnumerable<string>> SearchGenres(string searchText, CancellationToken token)
