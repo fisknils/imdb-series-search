@@ -9,7 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
-builder.Services.AddDbContext<ImdbDbContext>(options => options.UseSqlite("Data Source=imdb.db"));
+builder.Services.AddDbContext<ImdbDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<SearchService>();
 builder.Services.AddMudServices();
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -14,9 +15,9 @@ namespace ImdbSearch.Migrations
                 name: "Genres",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -27,14 +28,14 @@ namespace ImdbSearch.Migrations
                 name: "Titles",
                 columns: table => new
                 {
-                    TConst = table.Column<string>(type: "TEXT", nullable: false),
-                    TitleType = table.Column<string>(type: "TEXT", nullable: false),
-                    PrimaryTitle = table.Column<string>(type: "TEXT", nullable: false),
-                    OriginalTitle = table.Column<string>(type: "TEXT", nullable: false),
-                    IsAdult = table.Column<bool>(type: "INTEGER", nullable: false),
-                    StartYear = table.Column<int>(type: "INTEGER", nullable: true),
-                    EndYear = table.Column<int>(type: "INTEGER", nullable: true),
-                    RuntimeMinutes = table.Column<int>(type: "INTEGER", nullable: true)
+                    TConst = table.Column<string>(type: "text", nullable: false),
+                    TitleType = table.Column<string>(type: "text", nullable: false),
+                    PrimaryTitle = table.Column<string>(type: "text", nullable: false),
+                    OriginalTitle = table.Column<string>(type: "text", nullable: false),
+                    IsAdult = table.Column<bool>(type: "boolean", nullable: false),
+                    StartYear = table.Column<int>(type: "integer", nullable: true),
+                    EndYear = table.Column<int>(type: "integer", nullable: true),
+                    RuntimeMinutes = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -45,9 +46,9 @@ namespace ImdbSearch.Migrations
                 name: "Ratings",
                 columns: table => new
                 {
-                    TConst = table.Column<string>(type: "TEXT", nullable: false),
-                    AverageRating = table.Column<decimal>(type: "TEXT", nullable: false),
-                    NumVotes = table.Column<int>(type: "INTEGER", nullable: false)
+                    TConst = table.Column<string>(type: "text", nullable: false),
+                    AverageRating = table.Column<double>(type: "double precision", nullable: false),
+                    NumVotes = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -64,8 +65,8 @@ namespace ImdbSearch.Migrations
                 name: "TitleGenres",
                 columns: table => new
                 {
-                    TConst = table.Column<string>(type: "TEXT", nullable: false),
-                    GenreId = table.Column<int>(type: "INTEGER", nullable: false)
+                    TConst = table.Column<string>(type: "text", nullable: false),
+                    GenreId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
