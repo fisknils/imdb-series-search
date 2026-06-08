@@ -11,6 +11,20 @@ A Blazor Server application for searching TV series and mini-series from the IMD
 
 Extract both `.tsv.gz` files to a folder of your choice.
 
+## Setup
+
+If `dotnet ef` is not installed, install it first:
+
+```bash
+dotnet tool install --global dotnet-ef
+```
+
+Run the database migration to create the local SQLite database:
+
+```bash
+dotnet ef database update
+```
+
 ## Importing the Data
 
 Run the import command, pointing it at the folder containing the extracted TSV files:
@@ -19,15 +33,15 @@ Run the import command, pointing it at the folder containing the extracted TSV f
 dotnet run -- --import /path/to/tsv/files
 ```
 
-This will create a local `imdb.db` SQLite database. The import filters to TV series and mini-series only, so it completes in a few minutes.
+This will populate the database with TV series and mini-series. The import filters out movies and other title types, so it completes in a few minutes.
 
 ## Running the App
 
 ```bash
-dotnet run --launch-profile https
+dotnet run
 ```
 
-Then open [https://localhost:7228](https://localhost:7228) in your browser.
+Then open the HTTPS URL shown in the terminal output in your browser.
 
 ## Tech Stack
 

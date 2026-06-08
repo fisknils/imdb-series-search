@@ -115,8 +115,7 @@
             @if (resultPage.TotalPages > 1)
             {
                 <div class="pagination">
-                    <button class="page-btn" disabled="@(resultPage.Page <= 1)" 
-                            @onclick="() => GoToPage(resultPage.Page - 1)">←</button>
+                    <button class="page-btn" disabled="@(resultPage.Page <= 1)" @onclick="() => GoToPage(resultPage.Page - 1)">←</button>
 
                     @foreach (int pageNum in GetPageNumbers(resultPage.Page, resultPage.TotalPages))
                     {
@@ -127,13 +126,11 @@
                         else
                         {
                             int p = pageNum;
-                            <button class="page-btn @(p == resultPage.Page ? "active" : "")"
-                                    @onclick="() => GoToPage(p)">@p</button>
+                            <button class="page-btn @(p == resultPage.Page ? "active" : "")" @onclick="() => GoToPage(p)">@p</button>
                         }
                     }
 
-                    <button class="page-btn" disabled="@(resultPage.Page >= resultPage.TotalPages)" 
-                            @onclick="() => GoToPage(resultPage.Page + 1)">→</button>
+                    <button class="page-btn" disabled="@(resultPage.Page >= resultPage.TotalPages)" @onclick="() => GoToPage(resultPage.Page + 1)">→</button>
                 </div>
             }
         </div>
