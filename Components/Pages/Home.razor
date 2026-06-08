@@ -1,0 +1,229 @@
+﻿@page "/"
+@using ImdbSearch.Models
+@using ImdbSearch.Services
+@using MudBlazor
+@inject SearchService SearchService
+@rendermode InteractiveServer
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<PageTitle>IMDB Search</PageTitle>
+
+<div class="search-container">
+    <div class="filters">
+        <div class="filter-row">
+            <label>Title</label>
+            <input type="text" @bind="filter.TitleQuery" placeholder="Search by title..." />
+        </div>
+
+        <div class="filter-row">
+            <label>Minimum Rating</label>
+            <input type="number" @bind="filter.MinRating" min="0" max="10" step="0.1" />
+        </div>
+
+        <div class="filter-row">
+            <label>Minimum Votes</label>
+            <input type="number" @bind="filter.MinVotes" min="0" />
+        </div>
+
+        <div class="filter-row">
+            <label>Start Year From</label>
+            <input type="number" @bind="filter.MinStartYear" min="1900" max="2026" />
+        </div>
+
+        <div class="filter-row">
+            <label>Start Year To</label>
+            <input type="number" @bind="filter.MaxStartYear" min="1900" max="2026" />
+        </div>
+
+        <div class="filter-row filter-genres">
+            <label>Required Genres</label>
+            <MudAutocomplete T="string"
+                @ref="requiredGenreInput"
+                SearchFunc="SearchGenres"
+                ValueChanged="OnRequiredGenreSelected"
+                Placeholder="Add required genre..."
+                ResetValueOnEmptyText="true"
+                CoerceText="false"
+                CoerceValue="false" />
+            <div class="selected-tags">
+                @foreach (string genre in filter.RequiredGenres)
+                {
+                    <MudChip T="string" OnClose="() => filter.RequiredGenres.Remove(genre)">@genre</MudChip>
+                }
+            </div>
+        </div>
+
+        <div class="filter-row filter-genres">
+            <label>Excluded Genres</label>
+            <MudAutocomplete T="string"
+                @ref="excludedGenreInput"
+                SearchFunc="SearchGenres"
+                ValueChanged="OnExcludedGenreSelected"
+                Placeholder="Add excluded genre..."
+                ResetValueOnEmptyText="true"
+                CoerceText="false"
+                CoerceValue="false" />
+            <div class="selected-tags">
+                @foreach (string genre in filter.ExcludedGenres)
+                {
+                    <MudChip T="string" Color="Color.Error" OnClose="() => filter.ExcludedGenres.Remove(genre)">@genre</MudChip>
+                }
+            </div>
+        </div>
+
+        <button @onclick="RunSearch" class="search-btn">Search</button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Searching...</p>
+    }
+    else if (resultPage != null)
+    {
+        <div class="results">
+            <p class="result-count">@resultPage.TotalCount result(s)</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Years</th>
+                        <th>Rating</th>
+                        <th>Votes</th>
+                        <th>Genres</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (SearchResult result in resultPage.Results)
+                    {
+                        <tr>
+                            <td><a href="https://www.imdb.com/title/@result.TConst" target="_blank">@result.PrimaryTitle</a></td>
+                            <td>@result.TitleType</td>
+                            <td>@result.StartYear@(result.EndYear.HasValue ? $"–{result.EndYear}" : "–")</td>
+                            <td>@(result.AverageRating.HasValue ? result.AverageRating.Value.ToString("F1") : "N/A")</td>
+                            <td>@(result.NumVotes.HasValue ? result.NumVotes.Value.ToString("N0") : "N/A")</td>
+                            <td>@string.Join(", ", result.Genres)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (resultPage.TotalPages > 1)
+            {
+                <div class="pagination">
+                    <button class="page-btn" disabled="@(resultPage.Page <= 1)" 
+                            @onclick="() => GoToPage(resultPage.Page - 1)">←</button>
+
+                    @foreach (int pageNum in GetPageNumbers(resultPage.Page, resultPage.TotalPages))
+                    {
+                        if (pageNum == -1)
+                        {
+                            <span class="page-ellipsis">…</span>
+                        }
+                        else
+                        {
+                            int p = pageNum;
+                            <button class="page-btn @(p == resultPage.Page ? "active" : "")"
+                                    @onclick="() => GoToPage(p)">@p</button>
+                        }
+                    }
+
+                    <button class="page-btn" disabled="@(resultPage.Page >= resultPage.TotalPages)" 
+                            @onclick="() => GoToPage(resultPage.Page + 1)">→</button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private SearchFilter filter = new();
+    private SearchResultPage? resultPage;
+    private List<string> availableGenres = new();
+    private bool isLoading = false;
+    private MudAutocomplete<string>? requiredGenreInput;
+    private MudAutocomplete<string>? excludedGenreInput;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        availableGenres = await SearchService.GetGenresAsync();
+    }
+
+    private async Task RunSearch()
+    {
+        filter.Page = 1;
+        isLoading = true;
+        StateHasChanged();
+        resultPage = await SearchService.SearchAsync(filter);
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        filter.Page = page;
+        isLoading = true;
+        StateHasChanged();
+        resultPage = await SearchService.SearchAsync(filter);
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task<IEnumerable<string>> SearchGenres(string searchText, CancellationToken token)
+    {
+        return await Task.FromResult(
+            availableGenres.Where(g => g.Contains(searchText ?? "", StringComparison.OrdinalIgnoreCase))
+        );
+    }
+
+    private async void OnRequiredGenreSelected(string? genre)
+    {
+        if (genre != null && !filter.RequiredGenres.Contains(genre))
+        {
+            filter.RequiredGenres.Add(genre);
+            filter.ExcludedGenres.Remove(genre);
+        }
+        if (requiredGenreInput != null)
+            await requiredGenreInput.ResetAsync();
+    }
+
+    private async void OnExcludedGenreSelected(string? genre)
+    {
+        if (genre != null && !filter.ExcludedGenres.Contains(genre))
+        {
+            filter.ExcludedGenres.Add(genre);
+            filter.RequiredGenres.Remove(genre);
+        }
+        if (excludedGenreInput != null)
+            await excludedGenreInput.ResetAsync();
+    }
+
+    private IEnumerable<int> GetPageNumbers(int current, int total)
+    {
+        List<int> pages = new();
+
+        pages.Add(1);
+
+        int rangeStart = Math.Max(2, current - 2);
+        int rangeEnd = Math.Min(total - 1, current + 2);
+
+        if (rangeStart > 2)
+            pages.Add(-1);
+
+        for (int i = rangeStart; i <= rangeEnd; i++)
+            pages.Add(i);
+
+        if (rangeEnd < total - 1)
+            pages.Add(-1);
+
+        if (total > 1)
+            pages.Add(total);
+
+        return pages;
+    }
+}

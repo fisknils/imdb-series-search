@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Dataset files
+*.tsv
+*.tsv.gz
+*.gz
+
+# App settings with secrets
+appsettings.Development.json
+
+# OS
+.DS_Store
+Thumbs.db
